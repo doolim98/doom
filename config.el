@@ -5,10 +5,15 @@
 
 (load! "apperance.el")
 (load! "keymap.el")
+(load! "my.el")
 
 (setq org-directory "~/org/")
+(setq auto-save-default nil)
 
-;; (setq flycheck-display-errors-delay)
+(add-to-list 'auto-mode-alist '("[Mm]akefile\..*\\'" . makefile-bsdmake-mode))
+(add-to-list 'auto-mode-alist '("\\.[Mm]akefile\\'" . makefile-bsdmake-mode))
+
+;; (setq flycheck-display-errors-delay 100000) ;; Display errors only when I want
 
 (after! ispell
   (setq ispell-program-name "aspell"
@@ -18,24 +23,63 @@
   )
 
 (defun my/pdf-view-hook()
-  ;; (setq auto-revert-mode 1
-  ;;       auto-revert-interval 1)
   ;; auto bounding
   (pdf-view-auto-slice-minor-mode 1)
+  (setq auto-revert-mode t
+        auto-revert-interval 2)
   )
 
 (add-hook 'pdf-view-mode-hook 'my/pdf-view-hook)
 
+(after! projectile
+  (setq projectile-file-exists-remote-cache-expire nil)
+  (setq projectile-enable-caching nil)
+  ;; (setq projectile-mode-line '(:eval (format " Projectile[%s]" (projectile-project-name))))
+  (setq projectile-globally-ignored-directories
+        (quote (".idea" ".eunit" ".git" ".hg" ".svn" ".fslckout" ".bzr" "_darcs" ".tox" "build" "target")))
+)
 
+
+
+; ============
+; REMOTE SETUP
+; ============
 ;; GNU TRAMP Configuration
+(customize-set-variable
+ 'tramp-ssh-controlmaster-options
+ (concat
+   "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+   "-o ControlMaster=auto -o ControlPersist=yes"))
+
 (setq tramp-default-method "ssh"
-      ;; tramp-terminal-type "tramp"                        ; Let other terminal know what client I'm connecting with (might need to configure server)
-      ;; tramp-auto-save-directory "$XDG_CACHE_HOME/tramp/" ; Send Tramp info into XDG Cache directory on machine
-      tramp-chunksize 2000)                              ; Resonable Chunk size for speed and disk space in mind
+      tramp-chunksize nil ;2000
+      tramp-use-ssh-controlmaster-options t)
+;; (add-to-list 'vterm-tramp-shells
+;;              '("ssh" "/bin/bash"))
 
 (after! company
   (setq company-idle-delay 0.1
         company-tooltip-margin 1))
+(after! eglot
+  )
+(setq eldoc-last-message t)
+(setq eldoc-idle-delay 0.2)
+(setq eldoc-echo-area-use-multiline-p nil)
+(setq max-mini-window-height 5)
+
+;; eglot-workspace-configuration
+
+(setq rainbow-delimiters-mode 0)
+
+(defun my/disable-modes()
+  (progn
+    (setq rainbow-delimiters-mode 0)
+    (message "latex hook")
+    )
+  )
+(add-hook! Tex-mode
+  'my/disable-modes
+  )
 
 (use-package! yasnippet
   :config
@@ -47,35 +91,12 @@
 (setq TeX-parse-self t)
 (setq-default TeX-master nil)
 
-
-;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
-;;
-;;   (after! PACKAGE
-;;     (setq x y))
-;;
-;; The exceptions to this rule:
-;;
-;;   - Setting file/directory variables (like `org-directory')
-;;   - Setting variables which explicitly tell you to set them before their
-;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-;;   - Setting doom variables (which start with 'doom-' or '+').
-;;
-;; Here are some additional functions/macros that will help you configure Doom.
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-
 (defun my/latexmk()
   (interactive)
   (if (projectile-project-root)
       (progn
-        (message "OK!"))
+        (message "OK!")
+        (projectile-run-async-shell-command-in-root  "latexmk -pvc -view=none")
+        )
     (message "ERR!"))
-  ;; (projectile-run-async-shell-command-in-root  "latexmk -pvc -view=none")
   )

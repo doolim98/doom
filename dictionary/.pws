@@ -1,6 +1,9 @@
-personal_ws-1.1 en 55 
+personal_ws-1.1 en 71 
 Timeclave
+addr
 algos
+alloc
+allocator
 annot
 backend
 bitcode
@@ -9,11 +12,13 @@ cond
 config
 controlmaster
 crypto
+dac
 decrypt
 decrypted
 dep
 dfsan
 dockerfiles
+doxygen
 escapeinside
 frontend
 func
@@ -25,13 +30,19 @@ lightgray
 linearization
 linearized
 linearizing
+malloc
 mathescape
 mem
 memcrypt
 memjam
 microarchitectural
+myobliv
 obfuscuro
+objs
+obliv
 opram
+overtaint
+overtaints
 parallelism
 preload
 preloading
@@ -41,16 +52,21 @@ ret
 runtime
 rustsan
 sca
+scalability
 scalable
+sizeof
 skku
 sofle
 ssl
 sslab
+struct
 timeclave's
 transactional
 tseytin
+unadoptable
 unobservable
 unscalable
+vs
 wasm
 wasm's
 zerotrace
